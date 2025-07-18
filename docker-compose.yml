@@ -49,19 +49,20 @@ services:
         condition: service_healthy
 
   # ────────── 3. Prefect 2 agent ──────────
-  agent:
-    image: prefecthq/prefect:2-latest
-    command: >
-      prefect agent start --pool ${PREFECT_WORK_POOL_NAME:-etl-weather-nyc}
+  # add this new service
+  prefect-server:
+    image: prefecthq/prefect:3-latest
+    command: prefect server start
     environment:
-      PREFECT_API_KEY: ${PREFECT_API_KEY}
-      PREFECT_API_URL: ${PREFECT_API_URL}
-      PREFECT_WORK_POOL_NAME: ${PREFECT_WORK_POOL_NAME:-etl-weather-nyc}
-    volumes:
-      - ./:/workspace          # lets the agent load flows from the repo
-    depends_on:
-      - postgres
-      - minio
+      PREFECT_UI_BACKEND: server
+    ports:
+      - "4200:4200"      # Prefect UI/API
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 
 volumes:
   pgdata:
