@@ -52,7 +52,7 @@ services:
   # add this new service
   prefect-server:
     image: prefecthq/prefect:3-latest
-    command: prefect server start
+    command: prefect server start --host 0.0.0.0 --port 4200
     environment:
       PREFECT_UI_BACKEND: server
     ports:
